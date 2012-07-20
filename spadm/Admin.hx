@@ -144,6 +144,7 @@ class Admin {
 				}
 			}
 			style.endLine();
+			allTables.remove(t.name);
 			if( windows || TableInfos.OLD_COMPAT ) allTables.remove(t.name.toLowerCase());
 		}
 		style.endTable();
