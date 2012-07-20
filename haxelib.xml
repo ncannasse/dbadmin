@@ -1,0 +1,5 @@
+<project name="spodadmin" url="http://github.com/ncannasse/spodadmin" license="MIT">
+    <user name="ncannasse"/>
+    <description>Database Admin interface for Spod Macros</description>
+    <version name="1.0">Initial stable release</version>
+</project>
