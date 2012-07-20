@@ -1,0 +1,5 @@
+-neko spadm.n
+-D spod_macro
+-D haxe3
+-lib hscript
+spadm.Admin
