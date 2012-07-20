@@ -120,6 +120,7 @@ class Admin {
 		var rq = execute(TableInfos.allTablesRequest());
 		for( r in rq )
 			allTables.add(rq.getResult(0));
+		var windows = Sys.systemName() == "Windows";
 		for( t in getTables() ) {
 			var rights = getRights(createInstance(t));
 			style.beginLine(true);
@@ -143,7 +144,7 @@ class Admin {
 				}
 			}
 			style.endLine();
-			if( TableInfos.OLD_COMPAT ) allTables.remove(t.name.toLowerCase());
+			if( windows || TableInfos.OLD_COMPAT ) allTables.remove(t.name.toLowerCase());
 		}
 		style.endTable();
 		if( sync )
