@@ -177,6 +177,9 @@ class TableInfos {
 		case DText, DSerialized: "MEDIUMTEXT";
 		case DSmallBinary: "BLOB";
 		case DBinary, DNekoSerialized: "MEDIUMBLOB";
+		#if haxe_211
+		case DData: "MEDIUMBLOB";
+		#end
 		case DLongBinary: "LONGBLOB";
 		case DBigInt: "BIGINT";
 		case DBigId: "BIGINT AUTO_INCREMENT";
@@ -321,6 +324,9 @@ class TableInfos {
 		case DDate, DDateTime, DTimeStamp: cast Date.fromString(v);
 		case DBool: cast (v == "true");
 		case DText, DString(_), DSmallText, DTinyText, DBinary, DSmallBinary, DLongBinary, DSerialized, DNekoSerialized, DBytes(_): cast v;
+		#if haxe_211
+		case DData: cast v;
+		#end
 		case DNull, DInterval: throw "assert";
 		};
 	}
@@ -458,6 +464,9 @@ class TableInfos {
 					"'0000-00-00 00:00:00'";
 				case DDate: "'0000-00-00'";
 				case DSmallBinary, DBinary, DLongBinary, DNekoSerialized, DBytes(_), DNull, DInterval: null;
+				#if haxe_211
+				case DData: null;
+				#end
 				}
 				if( v != def && !OLD_COMPAT )
 					return null;

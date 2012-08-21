@@ -266,6 +266,10 @@ class AdminStyle {
 			inputText(name, "dtext");
 		case DSerialized, DNekoSerialized:
 			inputText(name, "dtext", true);
+		#if haxe_211
+		case DData:
+			inputText(name, "dtext", true);
+		#end
 		case DEncoded:
 			input(name,"denc",{ size : 6 });
 		case DFlags(fl,_):

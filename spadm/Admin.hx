@@ -217,6 +217,11 @@ class Admin {
 			case DNekoSerialized:
 				var v = try haxe.Serializer.run(neko.Lib.localUnserialize(defval)) catch( e : Dynamic ) ("ERROR : " + Std.string(e));
 				defval = new Serialized(v).escape();
+			#if haxe_211
+			case DData:
+				var str = defval.toString();
+				defval = new mt.db.Serialized(str).escape();
+			#end
 			default:
 			}
 		}
@@ -364,6 +369,13 @@ class Admin {
 			var str = new Serialized(v).encode();
 			var val = neko.Lib.serialize(haxe.Unserializer.run(str));
 			return val;
+		#if haxe_211
+		case DData:
+			var s = new Serialized(v).encode();
+			if( s.length > 0xFFFFFF )
+				return null;
+			return haxe.io.Bytes.ofString(s);
+		#end
 		case DNull, DInterval:
 			throw "assert";
 		}
