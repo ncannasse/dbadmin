@@ -179,6 +179,7 @@ class TableInfos {
 		case DBinary, DNekoSerialized: "MEDIUMBLOB";
 		#if haxe_211
 		case DData: "MEDIUMBLOB";
+		case DEnum(_): "TINYINT UNSIGNED";
 		#end
 		case DLongBinary: "LONGBLOB";
 		case DBigInt: "BIGINT";
@@ -326,6 +327,7 @@ class TableInfos {
 		case DText, DString(_), DSmallText, DTinyText, DBinary, DSmallBinary, DLongBinary, DSerialized, DNekoSerialized, DBytes(_): cast v;
 		#if haxe_211
 		case DData: cast v;
+		case DEnum(_): cast v;
 		#end
 		case DNull, DInterval: throw "assert";
 		};
@@ -466,6 +468,7 @@ class TableInfos {
 				case DSmallBinary, DBinary, DLongBinary, DNekoSerialized, DBytes(_), DNull, DInterval: null;
 				#if haxe_211
 				case DData: null;
+				case DEnum(_): "'0'";
 				#end
 				}
 				if( v != def && !OLD_COMPAT )
@@ -551,6 +554,10 @@ class TableInfos {
 		case DFlags(fl, auto): auto ? (fl.length <= 8 ? dt == DTinyUInt : (fl.length <= 16 ? dt == DSmallUInt : (fl.length <= 24 ? dt == DMediumUInt : dt == DInt))) : (dt == DInt);
 		case DSerialized: (dt == DText);
 		case DNekoSerialized: (dt == DBinary);
+		#if haxe_211
+		case DData: dt == DBinary;
+		case DEnum(_): dt == DTinyUInt;
+		#end
 		default: false;
 		};
 	}

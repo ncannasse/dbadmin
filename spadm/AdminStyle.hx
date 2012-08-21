@@ -269,6 +269,9 @@ class AdminStyle {
 		#if haxe_211
 		case DData:
 			inputText(name, "dtext", true);
+		case DEnum(_):
+			// todo : use a select box with possible constructors
+			input(name, "dtint", { size : 4 } );
 		#end
 		case DEncoded:
 			input(name,"denc",{ size : 6 });

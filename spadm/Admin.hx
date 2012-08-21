@@ -375,6 +375,13 @@ class Admin {
 			if( s.length > 0xFFFFFF )
 				return null;
 			return haxe.io.Bytes.ofString(s);
+		case DEnum(e):
+			if( v == "" ) return 0;
+			var i = Std.parseInt(v);
+			var ev = Type.resolveEnum(e);
+			if( i < 0 || (ev != null && i >= Type.getEnumConstructs(ev).length) )
+				return null;
+			return i;
 		#end
 		case DNull, DInterval:
 			throw "assert";
