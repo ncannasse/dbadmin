@@ -220,7 +220,7 @@ class Admin {
 			#if haxe_211
 			case DData:
 				var str = defval.toString();
-				defval = new mt.db.Serialized(str).escape();
+				defval = new Serialized(str).escape();
 			#end
 			default:
 			}
