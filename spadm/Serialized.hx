@@ -142,9 +142,11 @@ class Serialized {
 					buf.add("d");
 					buf.add(v);
 				}
+			#if !haxe3
 			case CInt32(i):
 				buf.add("d");
 				buf.add(v);
+			#end
 			}
 		case EUnop(op, k, es):
 			switch( es ) {
