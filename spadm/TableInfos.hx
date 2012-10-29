@@ -22,12 +22,10 @@
  */
 package spadm;
 
-typedef ClassObject<T> = Class<T>
-typedef TypeApi = Type
-
-typedef TableType = sys.db.SpodInfos.SpodType;
 import sys.db.Object;
 import sys.db.Manager;
+
+typedef TableType = sys.db.SpodInfos.SpodType;
 
 typedef ManagerAccess = {
 	private var table_name : String;
@@ -54,7 +52,7 @@ class TableInfos {
 	public static var OLD_COMPAT = false; // only set for old DBs !
 
 	public var primary(default,null) : List<String>;
-	public var cl(default,null) : ClassObject<Object>;
+	public var cl(default,null) : Class<Object>;
 	public var name(default,null) : String;
 	public var className(default,null) : String;
 	public var hfields(default,null) : Hash<TableType>;
@@ -68,9 +66,9 @@ class TableInfos {
 		hfields = new Hash();
 		fields = new List();
 		nulls = new Hash();
-		cl = cast TypeApi.resolveClass("db."+cname);
+		cl = cast Type.resolveClass("db."+cname);
 		if( cl == null )
-			cl = cast TypeApi.resolveClass(cname);
+			cl = cast Type.resolveClass(cname);
 		else
 			cname = "db."+cname;
 		if( cl == null )
@@ -103,7 +101,7 @@ class TableInfos {
 			if( t == null ) throw "Missing type " + r.type + " for relation " + name + "." + r.prop;
 			var manager : ManagerAccess = Reflect.field(t, "manager");
 			if( manager == null ) throw r.type + " does not have a static field manager";
-			relations.push( { prop : r.prop, key : r.key, lock : r.lock, manager : manager, className : TypeApi.getClassName(manager.dbClass()), cascade : r.cascade } );
+			relations.push( { prop : r.prop, key : r.key, lock : r.lock, manager : manager, className : Type.getClassName(manager.dbClass()), cascade : r.cascade } );
 		}
 		indexes = new List();
 		for( i in infos.indexes )

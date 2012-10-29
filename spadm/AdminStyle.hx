@@ -23,6 +23,9 @@
 package spadm;
 
 import haxe.macro.Context;
+#if !macro
+import spadm.TableInfos.TableType;
+#end
 
 class MacroHelper {
 
@@ -34,7 +37,6 @@ class MacroHelper {
 }
 
 #if !macro
-import spadm.TableInfos.TableType;
 
 class AdminStyle {
 
