@@ -1079,10 +1079,19 @@ class Admin {
 		}
 	}
 
-	public static function initializeDatabase() {
+	public static function initializeDatabase( initIndexes = true, initRelations = true ) {
 		var a = new Admin();
-		for( t in a.getTables() )
+		var tables = a.getTables();
+		for( t in tables )
 			a.execute(t.createRequest(false));
+		for( t in tables ) {
+			if( initIndexes )
+				for( i in t.indexes )
+					a.execute(t.addIndexRequest(Lambda.array(i.keys), i.unique));
+			if( initRelations )
+				for( r in t.relations )
+					a.execute(t.addRelationRequest(r.key, r.prop));
+		}
 	}
 
 }
