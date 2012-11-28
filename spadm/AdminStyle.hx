@@ -62,7 +62,7 @@ class AdminStyle {
 	function out(str : String,?params : Dynamic) {
 		if( params != null ) {
 			for( x in Reflect.fields(params) )
-				str = str.split("$"+x).join(Reflect.field(params,x));
+				str = str.split("@"+x).join(Reflect.field(params,x));
 		}
 		neko.Lib.println(str);
 	}
@@ -74,14 +74,14 @@ class AdminStyle {
 	}
 
 	public function begin( title ) {
-		out('<html><head><title>$title</title>',{ title: title });
+		out('<html><head><title>@title</title>',{ title: title });
 		if( CSS != null )
 			out(CSS);
 		out('<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>');
 		out('
 			<script lang="text/javascript">
 				function updateLink(name,url,value) {
-					document.getElementById(name+"__goto").href = (value == "")?"#":("$base" + url + value);
+					document.getElementById(name+"__goto").href = (value == "")?"#":("@base" + url + value);
 				}
 				function updateImage(name,url,value) {
 					updateLink(name,url,value);
@@ -90,16 +90,16 @@ class AdminStyle {
 			</script>
 		',{ base : BASE_URL });
 		out('</head><body>');
-		out('<h1>$title</h1><div class="main">',{ title : title });
+		out('<h1>@title</h1><div class="main">',{ title : title });
 	}
 
 	public function end() {
 		out('<div class="links">');
-		out('<a href="/">Exit</a> | <a href="$url">Database</a>',{ url : BASE_URL });
+		out('<a href="/">Exit</a> | <a href="@url">Database</a>',{ url : BASE_URL });
 		if( table != null )
-			out('| <a href="$url$table/search">Search</a>',{ url : BASE_URL, table : table.className });
+			out('| <a href="@url@table/search">Search</a>',{ url : BASE_URL, table : table.className });
 		if( table != null )
-			out('| <a href="$url$table/insert">Insert</a>',{ url : BASE_URL, table : table.className });
+			out('| <a href="@url@table/insert">Insert</a>',{ url : BASE_URL, table : table.className });
 		out('</div></div>');
 		out(HTML_BOTTOM);
 		out('</body></html>');
@@ -126,15 +126,15 @@ class AdminStyle {
 	}
 
 	public function link( url, name ) {
-		out('<a href="$url">$name</a>',{ url : BASE_URL+url, name : name });
+		out('<a href="@url">@name</a>',{ url : BASE_URL+url, name : name });
 	}
 
 	public function linkConfirm( url, name ) {
-		out('<a href="$url" onclick="return confirm(\'Please confirm this action\')">$name</a>',{ url : BASE_URL+url, name : name });
+		out('<a href="@url" onclick="return confirm(\'Please confirm this action\')">@name</a>',{ url : BASE_URL+url, name : name });
 	}
 
 	public function beginForm(url,?file,?id) {
-		out('<form id="$id" action="$url" method="POST"$enc>',{ id:id, url : BASE_URL+url, enc : if( file ) ' enctype="multipart/form-data"' else "" });
+		out('<form id="@id" action="@url" method="POST"@enc>',{ id:id, url : BASE_URL+url, enc : if( file ) ' enctype="multipart/form-data"' else "" });
 		beginTable();
 	}
 
@@ -145,7 +145,7 @@ class AdminStyle {
 
 	public function beginTable( ?css ) {
 		if( css != null )
-			out('<table class="$css">',{ css : css });
+			out('<table class="@css">',{ css : css });
 		else
 			out('<table>');
 	}
@@ -176,12 +176,12 @@ class AdminStyle {
 	public function addSubmit( name, ?url, ?confirm, ?iname ) {
 		beginLine();
 		nextRow();
-		out('<input type="submit" class="button" value="$name"',{ name : name });
+		out('<input type="submit" class="button" value="@name"',{ name : name });
 		if( iname != null )
-			out(' name="$name"',{ name : iname });
+			out(' name="@name"',{ name : iname });
 		if( url != null ) {
 			var conf = if( confirm ) "if( confirm('Please confirm this action') )" else "";
-			out(' onclick="$conf document.location = \'$url\'; return false"', { conf : conf, url : BASE_URL + url });
+			out(' onclick="@conf document.location = \'@url\'; return false"', { conf : conf, url : BASE_URL + url });
 		} else if( confirm )
 			out(' onclick="return confirm(\'Please confirm this action\');"');
 		out('/>');
@@ -189,7 +189,7 @@ class AdminStyle {
 	}
 
 	public function checkBox(name,checked) {
-		out('<input name="$name" type="checkbox" class="dcheck"',{ name : name });
+		out('<input name="@name" type="checkbox" class="dcheck"',{ name : name });
 		if( checked )
 			out(' checked="1"');
 		out('/>');
@@ -203,16 +203,16 @@ class AdminStyle {
 		nextRow();
 		if( isNull )
 			checkBox(name+"__data",value != null);
-		out('<input name="$name" class="$css"',{ name : name, css : css });
+		out('<input name="@name" class="@css"',{ name : name, css : css });
 		if( options.size != null )
-			out(' maxlength="$size"',options);
+			out(' maxlength="@size"',options);
 		if( options.isCheck )
 			out(' type="checkbox"');
 		if( value != null ) {
 			if( options.isCheck ) {
 				if( Std.string(value) != "false" ) out(' checked="1"');
 			} else
-				out(' value="$v"',{ v : Std.string(value).split("\"").join("&quot;") });
+				out(' value="@v"',{ v : Std.string(value).split("\"").join("&quot;") });
 		}
 		out('/>');
 		endLine();
@@ -228,7 +228,7 @@ class AdminStyle {
 		nextRow();
 		if( isNull )
 			checkBox(name+"__data",value != null);
-		out('<textarea name="$name" class="$css"$noWrap>$value</textarea>',{ noWrap : noWrap?' wrap="off"':'', name : name, css : css, value : if( value != null ) StringTools.htmlEscape(value) else "" });
+		out('<textarea name="@name" class="@css"@noWrap>@value</textarea>',{ noWrap : noWrap?' wrap="off"':'', name : name, css : css, value : if( value != null ) StringTools.htmlEscape(value) else "" });
 		endLine();
 	}
 
@@ -287,7 +287,7 @@ class AdminStyle {
 			if( vint == null ) vint = 0;
 			var pos = 0;
 			for( i in 0...fl.length ) {
-				out('<input name="$name" class="$css"',{ name : name + "_" + fl[i], css : "dbool" });
+				out('<input name="@name" class="@css"',{ name : name + "_" + fl[i], css : "dbool" });
 				out(' type="checkbox"');
 				if( vint & (1 << i) != 0 ) out(' checked="1"');
 				out('/>');
@@ -309,7 +309,7 @@ class AdminStyle {
 			text("["+value.length+" bytes]");
 		else if( url != null )
 			text("null");
-		out('<input type="file" class="dfile" name="$name"/>',{ name : name });
+		out('<input type="file" class="dfile" name="@name"/>',{ name : name });
 		if( value != null && url != null )
 			link(url(),"download");
 		endLine();
@@ -336,18 +336,18 @@ class AdminStyle {
 			def : if( def == "null" ) "" else def,
 		};
 		if( values == null )
-			out('<input id="$name" name="$name" class="dint" value="$def" $dis onchange="$func(\'$name\',\'$link\',this.value)"/>',infos);
+			out('<input id="@name" name="@name" class="dint" value="@def" @dis onchange="@func(\'@name\',\'@link\',this.value)"/>',infos);
 		else {
-			out('<select id="$name" name="$name" class="dselect" size="$size" $dis onchange="$func(\'$name\',\'$link\',this.value)">',infos);
+			out('<select id="@name" name="@name" class="dselect" size="@size" @dis onchange="@func(\'@name\',\'@link\',this.value)">',infos);
 			out('<option value="">---- none -----</option>');
 			for( v in values )
-				out('<option value="$id"$sel>$str</option>',{ id : v.id, str : v.str, sel : if( v.id == def ) ' selected="yes"' else "" });
+				out('<option value="@id"@sel>@str</option>',{ id : v.id, str : v.str, sel : if( v.id == def ) ' selected="yes"' else "" });
 			out('</select>');
 		}
-		out('<a id="$name__goto" href="#">goto</a>',{ name : name });
+		out('<a id="@name__goto" href="#">goto</a>',{ name : name });
 		if( isImage )
-			out('<img class="dfile" id="$name__img" src="$file"/>',{ name : name, file : getFileURL(def) });
-		out('<script lang="text/javascript">document.getElementById("$name").onchange()</script>',{ name : name });
+			out('<img class="dfile" id="@name__img" src="@file"/>',{ name : name, file : getFileURL(def) });
+		out('<script lang="text/javascript">document.getElementById("@name").onchange()</script>',{ name : name });
 		endLine();
 	}
 
@@ -359,7 +359,7 @@ class AdminStyle {
 	}
 
 	public function error( message ) {
-		out('<div class="derror">$msg</div>',{ msg : message });
+		out('<div class="derror">@msg</div>',{ msg : message });
 	}
 
 }
