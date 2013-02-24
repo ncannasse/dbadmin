@@ -25,7 +25,7 @@ package spadm;
 import sys.db.Object;
 import sys.db.Manager;
 
-typedef TableType = sys.db.SpodInfos.SpodType;
+typedef TableType = sys.db.RecordInfos.RecordType;
 
 typedef ManagerAccess = {
 	private var table_name : String;
@@ -55,17 +55,17 @@ class TableInfos {
 	public var cl(default,null) : Class<Object>;
 	public var name(default,null) : String;
 	public var className(default,null) : String;
-	public var hfields(default,null) : Hash<TableType>;
+	public var hfields(default,null) : Map<String,TableType>;
 	public var fields(default,null) : List<{ name : String, type : TableType }>;
-	public var nulls(default,null) : Hash<Bool>;
+	public var nulls(default,null) : Map<String,Bool>;
 	public var relations(default,null) : Array<TableRelation>;
 	public var indexes(default,null) : List<{ keys : List<String>, unique : Bool }>;
 	public var manager : Manager<Object>;
 
 	public function new( cname : String ) {
-		hfields = new Hash();
+		hfields = new Map();
 		fields = new List();
-		nulls = new Hash();
+		nulls = new Map();
 		cl = cast Type.resolveClass("db."+cname);
 		if( cl == null )
 			cl = cast Type.resolveClass(cname);
@@ -87,7 +87,7 @@ class TableInfos {
 		var rtti = haxe.rtti.Meta.getType(cl).rtti;
 		if( rtti == null )
 			throw "Class "+name+" does not have RTTI";
-		var infos : sys.db.SpodInfos = haxe.Unserializer.run(rtti[0]);
+		var infos : sys.db.RecordInfos = haxe.Unserializer.run(rtti[0]);
 		name = infos.name;
 		primary = Lambda.list(infos.key);
 		for( f in infos.fields ) {
@@ -175,10 +175,8 @@ class TableInfos {
 		case DText, DSerialized: "MEDIUMTEXT";
 		case DSmallBinary: "BLOB";
 		case DBinary, DNekoSerialized: "MEDIUMBLOB";
-		#if haxe_211
 		case DData: "MEDIUMBLOB";
 		case DEnum(_): "TINYINT UNSIGNED";
-		#end
 		case DLongBinary: "LONGBLOB";
 		case DBigInt: "BIGINT";
 		case DBigId: "BIGINT AUTO_INCREMENT";
@@ -323,15 +321,13 @@ class TableInfos {
 		case DDate, DDateTime, DTimeStamp: cast Date.fromString(v);
 		case DBool: cast (v == "true");
 		case DText, DString(_), DSmallText, DTinyText, DBinary, DSmallBinary, DLongBinary, DSerialized, DNekoSerialized, DBytes(_): cast v;
-		#if haxe_211
 		case DData: cast v;
 		case DEnum(_): cast v;
-		#end
 		case DNull, DInterval: throw "assert";
 		};
 	}
 
-	public function fromSearch( params : Hash<String>, order : String, pos : Int, count : Int ) : List<Object> {
+	public function fromSearch( params : Map<String,String>, order : String, pos : Int, count : Int ) : List<Object> {
 		var rop = ~/^([<>]=?)(.+)$/;
 		var cond = "TRUE";
 		var m : ManagerAccess = manager;
@@ -464,10 +460,8 @@ class TableInfos {
 					"'0000-00-00 00:00:00'";
 				case DDate: "'0000-00-00'";
 				case DSmallBinary, DBinary, DLongBinary, DNekoSerialized, DBytes(_), DNull, DInterval: null;
-				#if haxe_211
 				case DData: null;
 				case DEnum(_): "'0'";
-				#end
 				}
 				if( v != def && !OLD_COMPAT )
 					return null;
@@ -495,9 +489,9 @@ class TableInfos {
 		var index_r = ~/^[ \r\n]*(UNIQUE )?KEY `(.*)` \((.*)\)[ \r\n]*$/;
 		var foreign_r = ~/^[ \r\n]*CONSTRAINT `(.*)` FOREIGN KEY \(`(.*)`\) REFERENCES `(.*)` \(`(.*)`\) ON DELETE (SET NULL|CASCADE)[ \r\n]*$/;
 		var index_key_r = ~/^`?(.*?)`?(\([0-9+]\))?$/;
-		var fields = new Hash();
-		var nulls = new Hash();
-		var indexes = new Hash();
+		var fields = new Map();
+		var nulls = new Map();
+		var indexes = new Map();
 		var relations = new Array();
 		var primary = null;
 		for( f in matches ) {
@@ -552,10 +546,8 @@ class TableInfos {
 		case DFlags(fl, auto): auto ? (fl.length <= 8 ? dt == DTinyUInt : (fl.length <= 16 ? dt == DSmallUInt : (fl.length <= 24 ? dt == DMediumUInt : dt == DInt))) : (dt == DInt);
 		case DSerialized: (dt == DText);
 		case DNekoSerialized: (dt == DBinary);
-		#if haxe_211
 		case DData: dt == DBinary;
 		case DEnum(_): dt == DTinyUInt;
-		#end
 		default: false;
 		};
 	}

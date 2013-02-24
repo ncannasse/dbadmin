@@ -34,7 +34,7 @@ class Admin {
 
 	var style : AdminStyle;
 	var hasSyncAction : Bool;
-	var countCache : Hash<Bool>;
+	var countCache : Map<String,Bool>;
 	public var allowDrop : Bool;
 	public var default_rights : RightsInfos;
 	public var maxUploadSize : Int;
@@ -44,7 +44,7 @@ class Admin {
 		maxInstanceCount = 100;
 		maxUploadSize = 1000000;
 		allowDrop = false;
-		countCache = new Hash();
+		countCache = new Map();
 		default_rights = {
 			can : {
 				insert : true,
@@ -217,11 +217,9 @@ class Admin {
 			case DNekoSerialized:
 				var v = try haxe.Serializer.run(neko.Lib.localUnserialize(defval)) catch( e : Dynamic ) ("ERROR : " + Std.string(e));
 				defval = new Serialized(v).escape();
-			#if haxe_211
 			case DData:
 				var str = defval.toString();
 				defval = new Serialized(str).escape();
-			#end
 			default:
 			}
 		}
@@ -235,7 +233,7 @@ class Admin {
 			style.inputField(f.name,f.type,table.nulls.exists(f.name),defval);
 	}
 
-	function insert(table : TableInfos, ?params : Hash<String>, ?error : String, ?errorMsg : String ) {
+	function insert(table : TableInfos, ?params : Map<String,String>, ?error : String, ?errorMsg : String ) {
 		var binary = false;
 		for( f in table.fields )
 			if( isBinary(f.type) ) {
@@ -369,7 +367,6 @@ class Admin {
 			var str = new Serialized(v).encode();
 			var val = neko.Lib.serialize(haxe.Unserializer.run(str));
 			return val;
-		#if haxe_211
 		case DData:
 			var s = new Serialized(v).encode();
 			if( s.length > 0xFFFFFF )
@@ -382,7 +379,6 @@ class Admin {
 			if( i < 0 || (ev != null && i >= Type.getEnumConstructs(ev).length) )
 				return null;
 			return i;
-		#end
 		case DNull, DInterval:
 			throw "assert";
 		}
@@ -415,7 +411,7 @@ class Admin {
 		return untyped t.dbSearch();
 	}
 
-	function doInsert( table : TableInfos, params : Hash<String> ) {
+	function doInsert( table : TableInfos, params : Map<String,String> ) {
 		var inst = createInstance(table);
 		updateParams(table,params);
 		for( f in table.fields ) {
@@ -481,7 +477,7 @@ class Admin {
 		style.goto("");
 	}
 
-	function edit( table :  TableInfos, id : String, ?params : Hash<String>, ?error : String, ?errorMsg : String ) {
+	function edit( table :  TableInfos, id : String, ?params : Map<String,String>, ?error : String, ?errorMsg : String ) {
 		var obj = table.fromIdentifier(id);
 		var objStr = try Std.string(obj) catch( e : Dynamic ) "#"+id;
 		style.begin("Edit "+table.name+" "+objStr);
@@ -525,7 +521,7 @@ class Admin {
 		style.end();
 	}
 
-	function doEdit( table : TableInfos, id : String, params : Hash<String> ) {
+	function doEdit( table : TableInfos, id : String, params : Map<String,String> ) {
 		var inst = table.fromIdentifier(id);
 		if( inst == null ) {
 			style.goto(table.className+"/edit/"+id);
@@ -580,7 +576,7 @@ class Admin {
 		style.goto(table.className+"/edit/"+table.identifier(inst));
 	}
 
-	function updateParams( table : TableInfos, params : Hash<String> ) {
+	function updateParams( table : TableInfos, params : Map<String,String> ) {
 		var tmp = neko.Web.getMultipart(maxUploadSize);
 		for( k in tmp.keys() )
 			params.set(k,tmp.get(k));
@@ -652,7 +648,7 @@ class Admin {
 		neko.Lib.print(data);
 	}
 
-	function search( table : TableInfos, params : Hash<String> ) {
+	function search( table : TableInfos, params : Map<String,String> ) {
 		style.begin("Search "+table.name);
 
 		var pagesize = 30;
@@ -833,7 +829,7 @@ class Admin {
 		style.endItem();
 	}
 
-	function doSync( params : Hash<String> ) {
+	function doSync( params : Map<String,String> ) {
 		var order = ["create","add","reldel","idxdel","update","remove","rename","idxadd","reladd"];
 		var cmd = new Array();
 		for( p in params.keys() ) {
@@ -897,7 +893,7 @@ class Admin {
 	function needSync( t : TableInfos ) {
 		var desc = execute(t.descriptionRequest()).getResult(1);
 		var inf = TableInfos.fromDescription(desc);
-		var renames = new Hash();
+		var renames = new Map();
 		hasSyncAction = false;
 		// ADD/CHANGE FIELDS
 		for( f in t.fields ) {
@@ -965,7 +961,7 @@ class Admin {
 		for( r in inf.relations )
 			syncAction(t,["reldel",r.name],"Remove Relation "+r.name+"("+r.key+") on "+r.table+"("+r.id+")"+if( r.setnull ) " set-null" else "");
 		// INDEXES
-		var hidx = new Hash();
+		var hidx = new Map();
 		for( i in t.indexes )
 			hidx.set(indexId(i),i);
 		var used = new List();
@@ -1074,7 +1070,7 @@ class Admin {
 			Manager.cnx.rollback();
 			neko.Lib.print("<pre>");
 			neko.Lib.print(Std.string(e));
-			neko.Lib.print(haxe.Stack.toString(haxe.Stack.exceptionStack()));
+			neko.Lib.print(haxe.CallStack.toString(haxe.CallStack.exceptionStack()));
 			neko.Lib.print("</pre>");
 		}
 	}

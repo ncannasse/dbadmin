@@ -45,7 +45,7 @@ class Serialized {
 	var value : String;
 	var pos : Int;
 	var buf : StringBuf;
-	var shash : Hash<Int>;
+	var shash : Map<String,Int>;
 	var scount : Int;
 	var scache : Array<String>;
 	var useEnumIndex : Bool;
@@ -75,7 +75,7 @@ class Serialized {
 		p.allowJSON = true;
 		var e = p.parse(new haxe.io.StringInput(value));
 		buf = new StringBuf();
-		shash = new Hash();
+		shash = new Map();
 		scount = 0;
 		encodeRec(e);
 		return buf.toString();
@@ -148,20 +148,21 @@ class Serialized {
 				buf.add(v);
 			#end
 			}
-		case EUnop(op, k, es):
-			switch( es ) {
-			case EConst(v):
-				switch(v) {
-				case CInt(i):
-					encodeRec(EConst(CInt(-i)));
-					return;
-				case CFloat(f):
-					encodeRec(EConst(CFloat(-f)));
-					return;
+		case EUnop(op, _, es):
+			if( op == "-" )
+				switch( es ) {
+				case EConst(v):
+					switch(v) {
+					case CInt(i):
+						encodeRec(EConst(CInt(-i)));
+						return;
+					case CFloat(f):
+						encodeRec(EConst(CFloat(-f)));
+						return;
+					default:
+					}
 				default:
 				}
-			default:
-			}
 			throw "Unsupported " + Type.enumConstructor(e);
 		case EIdent(v):
 			switch( v ) {

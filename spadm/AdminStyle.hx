@@ -29,7 +29,7 @@ import spadm.TableInfos.TableType;
 
 class MacroHelper {
 
-	@:macro public static function importFile( file : String ) {
+	public macro static function importFile( file : String ) {
 		var data = try sys.io.File.getContent(Context.resolvePath(file)) catch( e : Dynamic ) null;
 		return Context.makeExpr(data,Context.currentPos());
 	}
@@ -268,13 +268,11 @@ class AdminStyle {
 			inputText(name, "dtext");
 		case DSerialized, DNekoSerialized:
 			inputText(name, "dtext", true);
-		#if haxe_211
 		case DData:
 			inputText(name, "dtext", true);
 		case DEnum(_):
 			// todo : use a select box with possible constructors
 			input(name, "dtint", { size : 4 } );
-		#end
 		case DEncoded:
 			input(name,"denc",{ size : 6 });
 		case DFlags(fl,_):
