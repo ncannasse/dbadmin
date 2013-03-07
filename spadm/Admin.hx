@@ -1007,13 +1007,9 @@ class Admin {
 		return hasSyncAction;
 	}
 
-	public function process( ?url : Array<String> ) {
+	public function process( ?url : Array<String>, ?baseUrl = "/db/" ) {
 		if( url == null ) {
-			url = neko.Web.getURI().split("/");
-			url.shift(); // empty : url starts with /
-			url.shift(); // "admin"
-			if( url[0] == "index.n" )
-				url.shift();
+			url = neko.Web.getURI().substr(baseUrl.length).split("/");
 		}
 		if( url.length == 0 ) url.push("");
 		var params = neko.Web.getParams();
@@ -1060,10 +1056,10 @@ class Admin {
 		neko.Web.logMessage("[DBADM] "+neko.Web.getHostName()+" "+Date.now().toString()+" "+neko.Web.getClientIP()+" - "+msg);
 	}
 
-	public static function handler() {
+	public static function handler( ?baseUrl:String ) {
 		Manager.initialize(); // make sure it's been done
 		try {
-			new Admin().process();
+			new Admin().process(baseUrl);
 		} catch( e : Dynamic ) {
 			// rollback in case of multiple delete/update - no effect on DB struct changes
 			// since they are done outside of transaction
