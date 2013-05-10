@@ -14,3 +14,8 @@ How to setup :
   * make sure it's only accessible by power users
   * enjoy !
 
+If you want to use a different path :
+
+	var basePath = /my/custom/path/to/spodadmin/
+	spadm.AdminStyle.BASE_URL = basePath;
+	spadm.Admin.handler(basePath);
