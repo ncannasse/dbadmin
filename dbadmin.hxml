@@ -1,0 +1,4 @@
+-neko dbadmin.n
+-D haxe3
+-lib hscript
+sys.db.Admin

@@ -1,7 +1,7 @@
-spodadmin
-=========
+Haxe DB Admin
+=============
 
-Database Admin interface for Spod Macros
+Database Admin interface for Haxe Records
 
   * list all tables and enable to browse / search / edit / insert / delete
   * view haxe and neko serialized data in clear and allow edit with -lib hscript
@@ -10,7 +10,7 @@ Database Admin interface for Spod Macros
 
 How to setup :
 
-  * map spadm.Admin.handler() to "/db" URL on your website
+  * map sys.db.Admin.handler() to "/db" URL on your website
   * make sure it's only accessible by power users
   * enjoy !
 

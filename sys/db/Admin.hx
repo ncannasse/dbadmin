@@ -20,15 +20,15 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package spadm;
+package sys.db;
 
 import sys.db.Object;
 import sys.db.Manager;
 import sys.db.Types;
 
-import spadm.Custom;
-import spadm.TableInfos.TableType;
-import spadm.TableInfos.ManagerAccess;
+import sys.db.Custom;
+import sys.db.TableInfos.TableType;
+import sys.db.TableInfos.ManagerAccess;
 
 class Admin {
 
