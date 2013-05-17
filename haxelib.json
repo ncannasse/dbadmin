@@ -5,5 +5,5 @@
   "description": "Database Admin interface for Haxe DB Records",
   "version": "1.1.0",
   "releasenote": "Haxe 3 update",
-  "contributors": ["ncannasse"],
+  "contributors": ["ncannasse"]
 }
