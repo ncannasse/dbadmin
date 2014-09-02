@@ -84,8 +84,16 @@ class Serialized {
 
 	#if hscript
 
+	inline function expr( e ){
+		#if hscriptPos
+		return e.e;
+		#else
+		return e;
+		#end
+	}
+
 	function getString( e : Expr ) {
-		return (e == null) ? null : switch( e ) {
+		return (e == null) ? null : switch( expr(e) ) {
 		case EConst(v):
 			switch(v) {
 			case CString(s): s;
@@ -98,7 +106,7 @@ class Serialized {
 	function getPath( e : Expr ) {
 		if( e == null )
 			return null;
-		switch( e ) {
+		switch( expr(e) ) {
 		case EConst(v):
 			return switch(v) {
 			case CString(s): s;
@@ -109,7 +117,7 @@ class Serialized {
 		case EField(e, f):
 			var path = "." + f;
 			while( true ) {
-				switch( e ) {
+				switch( expr(e) ) {
 				case EIdent(i): return i + path;
 				case EField(p, f): path = "." + f + path; e = p;
 				default: return  null;
@@ -120,8 +128,8 @@ class Serialized {
 		return null;
 	}
 
-	function encodeRec( e : hscript.Expr ) {
-		switch( e ) {
+	function encodeRec( e : Expr ) {
+		switch( expr(e) ) {
 		case EConst(v):
 			switch(v) {
 			case CString(s):
@@ -150,20 +158,28 @@ class Serialized {
 			}
 		case EUnop(op, _, es):
 			if( op == "-" )
-				switch( es ) {
+				switch( expr(es) ) {
 				case EConst(v):
 					switch(v) {
 					case CInt(i):
+						#if hscriptPos
+						encodeRec({e: EConst(CInt(-i)), pmin: es.pmin, pmax: es.pmax});
+						#else
 						encodeRec(EConst(CInt(-i)));
+						#end
 						return;
 					case CFloat(f):
+						#if hscriptPos
+						encodeRec({e: EConst(CFloat(-f)), pmin: es.pmin, pmax: es.pmax});
+						#else
 						encodeRec(EConst(CFloat(-f)));
+						#end
 						return;
 					default:
 					}
 				default:
 				}
-			throw "Unsupported " + Type.enumConstructor(e);
+			throw "Unsupported " + Type.enumConstructor(expr(e));
 		case EIdent(v):
 			switch( v ) {
 			case "null":
@@ -185,7 +201,7 @@ class Serialized {
 			var ucount = 0;
 			buf.add("a");
 			for( e in el ) {
-				switch( e ) {
+				switch( expr(e) ) {
 				case EIdent(i):
 					if( i == "null" ) {
 						ucount++;
@@ -221,7 +237,7 @@ class Serialized {
 			}
 			buf.add("g");
 		case ECall(e, params):
-			switch( e ) {
+			switch( expr(e) ) {
 			case EIdent(call):
 				switch(call) {
 				case "empty":
@@ -262,7 +278,7 @@ class Serialized {
 					}
 				case "hash":
 					if( params.length == 1 )
-						switch( params[0] ) {
+						switch( expr(params[0]) ) {
 						case EObject(fields):
 							buf.add("b");
 							for( f in fields ) {
@@ -275,7 +291,7 @@ class Serialized {
 						}
 				case "inthash":
 					if( params.length == 1 )
-						switch( params[0] ) {
+						switch( expr(params[0]) ) {
 						case EObject(fields):
 							buf.add("q");
 							for( f in fields ) {
@@ -309,7 +325,7 @@ class Serialized {
 					}
 				case "ref":
 					if( params.length == 1 ) {
-						switch( params[0] ) {
+						switch( expr(params[0]) ) {
 						case EConst(v):
 							switch(v) {
 							case CInt(i):
@@ -342,7 +358,7 @@ class Serialized {
 			if( c == "class" ) {
 				if( params.length == 2 ) {
 					cname = getString(params[0]);
-					fields = switch( params[1] ) { case EObject(fields): fields; default : null; }
+					fields = switch( expr(params[1]) ) { case EObject(fields): fields; default : null; }
 				}
 			} else if( c == "custom" ) {
 				cname = getPath(params[0]);
@@ -357,7 +373,7 @@ class Serialized {
 			} else {
 				if( params.length == 1 ) {
 					cname = c;
-					fields = switch( params[0] ) { case EObject(fields): fields; default : null; }
+					fields = switch( expr(params[0]) ) { case EObject(fields): fields; default : null; }
 				}
 			}
 			if( cname == null || fields == null )
@@ -370,7 +386,7 @@ class Serialized {
 			}
 			buf.add("g");
 		default:
-			throw "Unsupported " + Type.enumConstructor(e);
+			throw "Unsupported " + Type.enumConstructor(expr(e));
 		}
 	}
 
@@ -380,7 +396,7 @@ class Serialized {
 			throw "Invalid enum path";
 		var index : Null<Int> = null;
 		if( eindex != null ) {
-			switch( eindex ) {
+			switch( expr(eindex) ) {
 			case EConst(c):
 				switch( c ) {
 				case CInt(i): index = i;
