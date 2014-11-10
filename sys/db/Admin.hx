@@ -22,6 +22,7 @@
  */
 package sys.db;
 
+
 import sys.db.Object;
 import sys.db.Manager;
 import sys.db.Types;
@@ -218,7 +219,11 @@ class Admin {
 				var v = try haxe.Serializer.run(neko.Lib.localUnserialize(defval)) catch( e : Dynamic ) ("ERROR : " + Std.string(e));
 				defval = new Serialized(v).escape();
 			case DData:
-				var str = defval.toString();
+				#if spod_macro
+				var str = try haxe.Serializer.run((untyped table.manager).doUnserialize(f.name, defval)) catch( e : Dynamic ) ("ERROR : " + Std.string(e));
+				#else
+					var str = defval.toString();
+				#end
 				defval = new Serialized(str).escape();
 			default:
 			}
@@ -261,7 +266,7 @@ class Admin {
 		style.end();
 	}
 
-	function updateField( fname : String, v : String, ftype : TableType ) : Dynamic {
+	function updateField( fname : String, v : String, ftype : TableType, table : TableInfos ) : Dynamic {
 		switch( ftype ) {
 		case DId, DUId, DBigId:
 			return null;
@@ -368,7 +373,19 @@ class Admin {
 			var val = neko.Lib.serialize(haxe.Unserializer.run(str));
 			return val;
 		case DData:
-			var s = new Serialized(v).encode();
+			#if spod_macro
+				var s = new Serialized(v).encode();	
+				if( s.length > 0xFFFFFF )
+					return null;
+				//return haxe.io.Bytes.ofString(s);
+				return (untyped table.manager).doSerialize(fname, haxe.Unserializer.run(s)) ;
+			#else
+				var s = new Serialized(v).encode();		
+				if( s.length > 0xFFFFFF )
+					return null;
+				return haxe.io.Bytes.ofString(s);
+			#end
+
 			if( s.length > 0xFFFFFF )
 				return null;
 			return haxe.io.Bytes.ofString(s);
@@ -428,7 +445,7 @@ class Admin {
 				continue;
 			}
 			var msg = null;
-			var v = try updateField(f.name, v, f.type) catch( err : String ) { msg = err; null; };
+			var v = try updateField(f.name, v, f.type, table) catch( err : String ) { msg = err; null; };
 			if( v == null ) {
 				// loop in case of error Invalid_format
 				insert(table,params,f.name,msg);
@@ -540,7 +557,7 @@ class Admin {
 				continue;
 			}
 			var msg = null;
-			var v = try updateField(f.name, v, f.type) catch( err : Dynamic ) { msg = err; null; };
+			var v = try updateField(f.name, v, f.type, table) catch( err : Dynamic ) { msg = err; null; };
 			if( v == null ) {
 				// insert ID into params
 				if( table.primary != null ) {
