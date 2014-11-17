@@ -219,8 +219,8 @@ class Admin {
 				var v = try haxe.Serializer.run(neko.Lib.localUnserialize(defval)) catch( e : Dynamic ) ("ERROR : " + Std.string(e));
 				defval = new Serialized(v).escape();
 			case DData:
-				#if spod_macro
-				var str = try haxe.Serializer.run((untyped table.manager).doUnserialize(f.name, defval)) catch( e : Dynamic ) ("ERROR : " + Std.string(e));
+				#if haxe3
+					var str = try haxe.Serializer.run((untyped table.manager).doUnserialize(f.name, defval)) catch( e : Dynamic ) ("ERROR : " + Std.string(e));
 				#else
 					var str = defval.toString();
 				#end
@@ -373,22 +373,14 @@ class Admin {
 			var val = neko.Lib.serialize(haxe.Unserializer.run(str));
 			return val;
 		case DData:
-			#if spod_macro
-				var s = new Serialized(v).encode();	
-				if( s.length > 0xFFFFFF )
-					return null;
-				//return haxe.io.Bytes.ofString(s);
-				return (untyped table.manager).doSerialize(fname, haxe.Unserializer.run(s)) ;
-			#else
-				var s = new Serialized(v).encode();		
-				if( s.length > 0xFFFFFF )
-					return null;
-				return haxe.io.Bytes.ofString(s);
-			#end
-
+			var s = new Serialized(v).encode();	
 			if( s.length > 0xFFFFFF )
 				return null;
-			return haxe.io.Bytes.ofString(s);
+			#if haxe3
+				return (untyped table.manager).doSerialize(fname, haxe.Unserializer.run(s)) ;
+			#else
+				return haxe.io.Bytes.ofString(s);
+			#end
 		case DEnum(e):
 			if( v == "" ) return 0;
 			var i = Std.parseInt(v);
