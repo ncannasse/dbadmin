@@ -420,11 +420,9 @@ class Admin {
 	}
 
 	function createInstance( table : TableInfos ) : Object {		
-		#if php
-		var c = Type.createInstance(table.cl,[]);
-		//untyped c.__init_object();
-		#else
 		var c = Type.createEmptyInstance(table.cl);
+		#if !neko
+		untyped if( c._manager == null )  c._manager = c.__getManager();
 		#end
 		return c;
 	}
