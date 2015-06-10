@@ -27,6 +27,14 @@ import haxe.macro.Context;
 import sys.db.TableInfos.TableType;
 #end
 
+#if neko
+import neko.Lib;
+import neko.Web;
+#elseif php 
+import php.Lib;
+import php.Web;
+#end
+
 class MacroHelper {
 
 	public macro static function importFile( file : String ) {
@@ -64,7 +72,7 @@ class AdminStyle {
 			for( x in Reflect.fields(params) )
 				str = str.split("@"+x).join(Reflect.field(params,x));
 		}
-		neko.Lib.println(str);
+		Sys.println(str);
 	}
 
 	public function text(str,?title) {
@@ -122,7 +130,7 @@ class AdminStyle {
 	}
 
 	public function goto(url) {
-		neko.Web.redirect(BASE_URL+url);
+		Web.redirect(BASE_URL+url);
 	}
 
 	public function link( url, name ) {
