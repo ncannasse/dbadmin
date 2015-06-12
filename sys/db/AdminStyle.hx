@@ -129,7 +129,7 @@ class AdminStyle {
 		out("</li>");
 	}
 
-	public function goto(url) {
+	public function redirect(url) {
 		Web.redirect(BASE_URL+url);
 	}
 

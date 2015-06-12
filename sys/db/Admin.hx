@@ -493,13 +493,13 @@ class Admin {
 			insert(table,params);
 			return;
 		}
-		style.goto(table.className+"/edit/"+table.identifier(inst));
+		style.redirect(table.className+"/edit/"+table.identifier(inst));
 	}
 
 	function doCreate(table : TableInfos) {
 		try {
 			execute(table.createRequest(false));
-			style.goto("");
+			style.redirect("");
 		} catch( e : Dynamic ) {
 			index(Std.string(e));
 		}
@@ -509,14 +509,14 @@ class Admin {
 		if( !allowDrop )
 			throw "Drop not allowed";
 		execute(table.dropRequest());
-		style.goto("");
+		style.redirect("");
 	}
 
 	function doCleanup( table : TableInfos ) {
 		if( !getRights(table).can.truncate )
 			throw "Can't cleanup";
 		execute(table.truncateRequest());
-		style.goto("");
+		style.redirect("");
 	}
 
 	function edit( table :  TableInfos, id : String, ?params : Map<String,String>, ?error : String, ?errorMsg : String ) {
@@ -566,7 +566,7 @@ class Admin {
 	function doEdit( table : TableInfos, id : String, params : Map<String,String> ) {
 		var inst = table.fromIdentifier(id);
 		if( inst == null ) {
-			style.goto(table.className+"/edit/"+id);
+			style.redirect(table.className+"/edit/"+id);
 			return;
 		}
 		updateParams(table,params);
@@ -615,7 +615,7 @@ class Admin {
 			edit(table,id,params,null,Std.string(e));
 			return;
 		}
-		style.goto(table.className+"/edit/"+table.identifier(inst));
+		style.redirect(table.className+"/edit/"+table.identifier(inst));
 	}
 
 	/**
@@ -666,7 +666,7 @@ class Admin {
 	function doDelete( table : TableInfos, id : String ) {
 		var inst = table.fromIdentifier(id);
 		if( inst == null ) {
-			style.goto(table.className+"/edit/"+id);
+			style.redirect(table.className+"/edit/"+id);
 			return;
 		}
 		if( !getRights(inst).can.delete ) {
@@ -675,13 +675,13 @@ class Admin {
 		}
 		inst.delete();
 		log("Deleted "+table.name+" "+id);
-		style.goto("");
+		style.redirect("");
 	}
 
 	function doDownload( table : TableInfos, id : String, field : String ) {
 		var inst = table.fromIdentifier(id);
 		if( inst == null ) {
-			style.goto(table.className+"/edit/"+id);
+			style.redirect(table.className+"/edit/"+id);
 			return;
 		}
 		var rights = getRights(inst);
@@ -931,7 +931,7 @@ class Admin {
 				return;
 			}
 		}
-		style.goto("");
+		style.redirect("");
 	}
 
 	function indexId( i : { unique : Bool, keys : List<String> } ) {
