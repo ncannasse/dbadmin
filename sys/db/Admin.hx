@@ -38,6 +38,7 @@ import php.Lib;
 import php.Web;
 #end
 
+@:access(sys.db.Manager)
 class Admin {
 
 	var style : AdminStyle;
@@ -454,9 +455,14 @@ class Admin {
 		updateParams(table,params);
 		for( f in table.fields ) {
 			var v = params.get(f.name);
+			#if (haxe_ver < 3.2)
+			var fieldName = f.name;
+			#else
+			var fieldName = Manager.getFieldName({name: f.name, t: f.type, isNull: table.nulls.exists(f.name)});
+			#end
 			if( v == null ) {
 				if( table.nulls.exists(f.name) )
-					Reflect.setField(inst,f.name,null);
+					Reflect.setField(inst,fieldName,null);
 				else
 					for( r in table.relations )
 						if( f.name == r.key ) {
@@ -472,7 +478,7 @@ class Admin {
 				insert(table,params,f.name,msg);
 				return;
 			}
-			Reflect.setField(inst,f.name,v);
+			Reflect.setField(inst,fieldName,v);
 		}
 		if( table.primary.length == 1 && Reflect.field(inst,table.primary.first()) == 0 )
 			Reflect.deleteField(inst,table.primary.first());
@@ -575,10 +581,15 @@ class Admin {
 		for( f in table.fields ) {
 			if( has(rights.readOnly,f.name) || has(rights.invisible,f.name) )
 				continue;
+			#if (haxe_ver < 3.2)
+			var fieldName = f.name;
+			#else
+			var fieldName = Manager.getFieldName({name: f.name, t: f.type, isNull: table.nulls.exists(f.name)});
+			#end
 			var v = params.get(f.name);
 			if( v == null ) {
 				if( table.nulls.exists(f.name) )
-					Reflect.setField(inst,f.name,null);
+					Reflect.setField(inst,fieldName,null);
 				continue;
 			}
 			var msg = null;
@@ -598,7 +609,7 @@ class Admin {
 			var bin = isBinary(f.type);
 			if( Std.is(v,String) && v == "" && bin )
 				continue;
-			Reflect.setField(inst,f.name,v);
+			Reflect.setField(inst,fieldName,v);
 			if( bin )
 				binaries.add({ name : f.name, value : v });
 		}
